@@ -34,11 +34,11 @@ GPU에서 동작하는 것입니다.
 15--17번 줄을 대신할 함수의 이름을 \texttt{vec\_add}라고 한다면 함수의 겉모양이
 다음과 같을 것입니다.
 
-\begin{lstlisting}[frame=single]
+```C
 __global__ void vec_add(int *a, int *b, int *c) {
 
 }
-\end{lstlisting}
+```
 
 이제 \texttt{vec\_add} 함수의 내부를 채워 봅시다.
 이 때 여러분이 하나 아셔야 하는 것이 쓰레드(thread)라는 개념입니다.
@@ -55,12 +55,12 @@ __global__ void vec_add(int *a, int *b, int *c) {
 아래와 같이 덧셈일 것이고, 이러한 쓰레드가 여러 개 만들어져서
 여러 개의 코어에서 동시에 덧셈을 수행할 것입니다.
 
-\begin{lstlisting}[frame=single]
+```C
 __global__ void vec_add(int *a, int *b, int *c) {
 
 	c[tid] = a[tid] + b[tid];
 }
-\end{lstlisting}
+```
 
 그런데 쓰레드들이 동일한 코드를 가지고 동일한 동작을 한다고 해서
 완전히 똑같은 동작을 한다면 여러 개의 쓰레드를 만들어서 여러 번 할 필요가
@@ -78,10 +78,12 @@ CUDA에서는 이를 위해 각 쓰레드 마다 서로 다른 번호를 부여�
 얻을 수 있다는 것입니다.
 이 \texttt{threadIdx.x}를 이용해서 tid 값을 아래와 같이 정할 수 있습니다.
 
+```C
 __global__ void vec_add(int *a, int *b, int *c) {
 	int	tid = threadIdx.x;
 	c[tid] = a[tid] + b[tid];
 }
+```
 
 이렇게 하면 각 쓰레드들은 서로 다른 tid 값을 가질 것입니다.
 어떤 쓰레드에 23번 번호가 부여되었다면, 그 쓰레드에서 tid 변수의 값은 23이
@@ -96,9 +98,9 @@ __global__ void vec_add(int *a, int *b, int *c) {
 
 그럼 이제 main에서 이 함수를 호출해야 할 것입니다. 호출은 아래와 같이 합니다.
 
-\begin{lstlisting}[frame=single]
+```C
 	vec_add<<<1, 1024>>>(da, db, dc);
-\end{lstlisting}
+```
 
 일반적인 함수 호출에 \texttt{<<<1, 1024>>>}가 추가되었습니다.
 이 부분이 몇 개의 쓰레드를 만들지를 지정하는 부분입니다.
@@ -119,6 +121,7 @@ CPU의 메모리에 있는 영역입니다.
 그 영역으로 데이터를 옮겨야 합니다.
 이 부분을 추가하면 아래와 같습니다.
 
+```C
 	int	*da, *db, *dc;
 	cudaMalloc((void **)&da, sizeof(int) * NUM_DATA);
 	cudaMalloc((void **)&db, sizeof(int) * NUM_DATA);
@@ -128,6 +131,7 @@ CPU의 메모리에 있는 영역입니다.
 	cudaMemcpy(db, b, sizeof(int)*NUM_DATA, cudaMemcpyHostToDevice);
 	vec_add<<<1, 1024>>>(da, db, dc);
 	cudaMemcpy(c, dc, sizeof(int)*NUM_DATA, cudaMemcpyDeviceToHost);
+```
 
 2--4번 줄이 GPU 메모리에서 일정 영역을 할당받는 부분입니다.
 C언어의 \texttt{malloc} 함수와 비슷한 \texttt{cudaMalloc}이라는
@@ -215,9 +219,9 @@ CUDA에서는 쓰레드를 생성할 때 쓰레드들이 개벌적으로 생성�
 모든 쓰레드들에 고유하고 연속적인 번호를 만들 수 있습니다.
 대표적인 방법이 아래와 같이 계산하는 것입니다.
 
-\begin{lstlisting}[frame=single]
+```C
 	int	tid = blockIdx.x*blockDim.x + threadIdx.x;
-\end{lstlisting}
+```
 
 예를 들어, \texttt{vec\_acc<<<3,128>>>(...)}이라고 호출했을 때
 	각 쓰레드에서 tid가 얼마가 될지 알아 봅시다.
