@@ -78,12 +78,10 @@ CUDA에서는 이를 위해 각 쓰레드 마다 서로 다른 번호를 부여�
 얻을 수 있다는 것입니다.
 이 \texttt{threadIdx.x}를 이용해서 tid 값을 아래와 같이 정할 수 있습니다.
 
-\begin{lstlisting}[frame=single]
 __global__ void vec_add(int *a, int *b, int *c) {
 	int	tid = threadIdx.x;
 	c[tid] = a[tid] + b[tid];
 }
-\end{lstlisting}
 
 이렇게 하면 각 쓰레드들은 서로 다른 tid 값을 가질 것입니다.
 어떤 쓰레드에 23번 번호가 부여되었다면, 그 쓰레드에서 tid 변수의 값은 23이
@@ -121,7 +119,6 @@ CPU의 메모리에 있는 영역입니다.
 그 영역으로 데이터를 옮겨야 합니다.
 이 부분을 추가하면 아래와 같습니다.
 
-\begin{lstlisting}[frame=single]
 	int	*da, *db, *dc;
 	cudaMalloc((void **)&da, sizeof(int) * NUM_DATA);
 	cudaMalloc((void **)&db, sizeof(int) * NUM_DATA);
@@ -131,7 +128,6 @@ CPU의 메모리에 있는 영역입니다.
 	cudaMemcpy(db, b, sizeof(int)*NUM_DATA, cudaMemcpyHostToDevice);
 	vec_add<<<1, 1024>>>(da, db, dc);
 	cudaMemcpy(c, dc, sizeof(int)*NUM_DATA, cudaMemcpyDeviceToHost);
-\end{lstlisting}
 
 2--4번 줄이 GPU 메모리에서 일정 영역을 할당받는 부분입니다.
 C언어의 \texttt{malloc} 함수와 비슷한 \texttt{cudaMalloc}이라는
